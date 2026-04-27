@@ -1,0 +1,15 @@
+/Users/angel/Documents/Nexus/src/Nexus.Application/bin/Debug/net9.0/Nexus.Application.deps.json
+/Users/angel/Documents/Nexus/src/Nexus.Application/bin/Debug/net9.0/Nexus.Application.dll
+/Users/angel/Documents/Nexus/src/Nexus.Application/bin/Debug/net9.0/Nexus.Application.pdb
+/Users/angel/Documents/Nexus/src/Nexus.Application/bin/Debug/net9.0/Nexus.Domain.dll
+/Users/angel/Documents/Nexus/src/Nexus.Application/bin/Debug/net9.0/Nexus.Domain.pdb
+/Users/angel/Documents/Nexus/src/Nexus.Application/obj/Debug/net9.0/Nexus.Application.csproj.AssemblyReference.cache
+/Users/angel/Documents/Nexus/src/Nexus.Application/obj/Debug/net9.0/Nexus.Application.GeneratedMSBuildEditorConfig.editorconfig
+/Users/angel/Documents/Nexus/src/Nexus.Application/obj/Debug/net9.0/Nexus.Application.AssemblyInfoInputs.cache
+/Users/angel/Documents/Nexus/src/Nexus.Application/obj/Debug/net9.0/Nexus.Application.AssemblyInfo.cs
+/Users/angel/Documents/Nexus/src/Nexus.Application/obj/Debug/net9.0/Nexus.Application.csproj.CoreCompileInputs.cache
+/Users/angel/Documents/Nexus/src/Nexus.Application/obj/Debug/net9.0/Nexus.Ap.EDFDCF09.Up2Date
+/Users/angel/Documents/Nexus/src/Nexus.Application/obj/Debug/net9.0/Nexus.Application.dll
+/Users/angel/Documents/Nexus/src/Nexus.Application/obj/Debug/net9.0/refint/Nexus.Application.dll
+/Users/angel/Documents/Nexus/src/Nexus.Application/obj/Debug/net9.0/Nexus.Application.pdb
+/Users/angel/Documents/Nexus/src/Nexus.Application/obj/Debug/net9.0/ref/Nexus.Application.dll

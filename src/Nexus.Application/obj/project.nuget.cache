@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "Q64i0co+x7U=",
+  "success": true,
+  "projectFilePath": "/Users/angel/Documents/Nexus/src/Nexus.Application/Nexus.Application.csproj",
+  "expectedPackageFiles": [
+    "/Users/angel/.nuget/packages/fluentvalidation/11.9.2/fluentvalidation.11.9.2.nupkg.sha512",
+    "/Users/angel/.nuget/packages/microsoft.netcore.app.ref/9.0.13/microsoft.netcore.app.ref.9.0.13.nupkg.sha512",
+    "/Users/angel/.nuget/packages/microsoft.aspnetcore.app.ref/9.0.13/microsoft.aspnetcore.app.ref.9.0.13.nupkg.sha512"
+  ],
+  "logs": []
+}
