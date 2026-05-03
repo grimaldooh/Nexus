@@ -6,5 +6,5 @@ public enum TransactionStatus
     Clean = 1,
     Duplicate = 2,
     Suspect = 3,
-    Rejected = 4
+    Invalid = 4
 }

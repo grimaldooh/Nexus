@@ -1,7 +1,7 @@
 WITH Ranked AS
 (
     SELECT Id,
-           ROW_NUMBER() OVER (PARTITION BY PolicyNumber, Amount, TransactionDate ORDER BY Id) AS rn
+            ROW_NUMBER() OVER (PARTITION BY PolicyNumber, NetCommission, TransactionDate ORDER BY Id) AS rn
     FROM InsuranceTransactions
     WHERE BatchId = @BatchId
 )

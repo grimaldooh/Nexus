@@ -8,12 +8,13 @@ public class InsuranceTransaction
     public Guid BatchId { get; set; }
     public string ExternalId { get; set; } = string.Empty;
     public string PolicyNumber { get; set; } = string.Empty;
-    public decimal Amount { get; set; }
     public decimal? GrossPremium { get; set; }
+    public decimal NetCommission { get; set; }
     public string CarrierCode { get; set; } = string.Empty;
     public DateTime TransactionDate { get; set; }
     public TransactionStatus Status { get; set; }
     public decimal? ConfidenceScore { get; set; }
+    public bool PIIMasked { get; set; }
     public string? Notes { get; set; }
 
     public Batch? Batch { get; set; }

@@ -33,9 +33,9 @@ public class OpenAiSemanticDuplicateAnalyzer : ISemanticDuplicateAnalyzer
         }
 
         var prompt = $"Assess if the following insurance transaction appears duplicate or cancelled. " +
-                     $"Return JSON with keys: isSuspect (bool), confidence (0-1), reason (string). " +
-                     $"PolicyNumber: {transaction.PolicyNumber}; Amount: {transaction.Amount}; " +
-                     $"Date: {transaction.TransactionDate:O}; Notes: {transaction.Notes}";
+                 $"Return JSON with keys: isSuspect (bool), confidence (0-1), reason (string). " +
+                 $"PolicyNumber: {transaction.PolicyNumber}; NetCommission: {transaction.NetCommission}; " +
+                 $"Date: {transaction.TransactionDate:O}; Notes: {transaction.Notes}";
 
         using var request = new HttpRequestMessage(HttpMethod.Post, Endpoint);
         request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _options.ApiKey);

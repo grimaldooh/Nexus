@@ -13,6 +13,7 @@ public class NexusDbContext : DbContext
     public DbSet<Batch> Batches => Set<Batch>();
     public DbSet<InsuranceTransaction> InsuranceTransactions => Set<InsuranceTransaction>();
     public DbSet<SanitizationLog> SanitizationLogs => Set<SanitizationLog>();
+    public DbSet<CarrierMapping> CarrierMappings => Set<CarrierMapping>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -41,9 +42,10 @@ public class NexusDbContext : DbContext
             entity.Property(x => x.ExternalId).HasMaxLength(100).IsRequired();
             entity.Property(x => x.PolicyNumber).HasMaxLength(100).IsRequired();
             entity.Property(x => x.CarrierCode).HasMaxLength(50).IsRequired();
-            entity.Property(x => x.Amount).HasColumnType("decimal(18,2)");
             entity.Property(x => x.GrossPremium).HasColumnType("decimal(18,2)");
+            entity.Property(x => x.NetCommission).HasColumnType("decimal(18,2)");
             entity.Property(x => x.Notes).HasMaxLength(2000);
+            entity.Property(x => x.PIIMasked).HasDefaultValue(false);
             entity.HasIndex(x => new { x.BatchId, x.ExternalId }).IsUnique(false);
         });
 
@@ -54,6 +56,17 @@ public class NexusDbContext : DbContext
             entity.HasOne(x => x.Transaction)
                 .WithMany(x => x.SanitizationLogs)
                 .HasForeignKey(x => x.TransactionId);
+        });
+
+        modelBuilder.Entity<CarrierMapping>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.CarrierCode).HasMaxLength(50).IsRequired();
+            entity.Property(x => x.SourceField).HasMaxLength(200).IsRequired();
+            entity.Property(x => x.TargetField).HasMaxLength(200).IsRequired();
+            entity.Property(x => x.TransformRule).HasMaxLength(500);
+            entity.Property(x => x.IsRequired).HasDefaultValue(false);
+            entity.HasIndex(x => new { x.CarrierCode, x.SourceField }).IsUnique();
         });
     }
 }

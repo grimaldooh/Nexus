@@ -28,7 +28,7 @@ public class AuditController : ControllerBase
             {
                 TransactionId = x.Id,
                 PolicyNumber = x.PolicyNumber,
-                Amount = x.Amount,
+                NetCommission = x.NetCommission,
                 TransactionDate = x.TransactionDate,
                 ConfidenceScore = x.ConfidenceScore,
                 Notes = x.Notes,
@@ -55,7 +55,7 @@ public class AuditController : ControllerBase
             return NotFound();
         }
 
-        transaction.Status = request.Approve ? TransactionStatus.Clean : TransactionStatus.Rejected;
+        transaction.Status = request.Approve ? TransactionStatus.Clean : TransactionStatus.Invalid;
 
         _dbContext.SanitizationLogs.Add(new Nexus.Domain.Entities.SanitizationLog
         {

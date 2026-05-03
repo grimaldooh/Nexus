@@ -7,4 +7,4 @@ public interface ICommissionCalculator
     Task<IReadOnlyList<CommissionSplit>> CalculateSplitsAsync(InsuranceTransaction transaction, CancellationToken cancellationToken);
 }
 
-public record CommissionSplit(Guid AgentId, decimal Amount);
+public record CommissionSplit(Guid AgentId, decimal NetCommission);

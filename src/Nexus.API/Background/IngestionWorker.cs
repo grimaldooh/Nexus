@@ -62,8 +62,8 @@ public class IngestionWorker : BackgroundService
                     BatchId = batch.Id,
                     ExternalId = record.ExternalId,
                     PolicyNumber = record.PolicyNumber,
-                    Amount = record.Amount,
                     GrossPremium = record.GrossPremium,
+                    NetCommission = record.NetCommission,
                     CarrierCode = record.CarrierCode,
                     TransactionDate = record.TransactionDate,
                     Notes = record.Notes,
@@ -110,7 +110,7 @@ public class IngestionWorker : BackgroundService
     {
         public string ExternalId { get; set; } = string.Empty;
         public string PolicyNumber { get; set; } = string.Empty;
-        public decimal Amount { get; set; }
+        public decimal NetCommission { get; set; }
         public decimal? GrossPremium { get; set; }
         public string CarrierCode { get; set; } = string.Empty;
         public DateTime TransactionDate { get; set; }

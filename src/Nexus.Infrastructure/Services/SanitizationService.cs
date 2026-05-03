@@ -39,7 +39,7 @@ public class SanitizationService : ISanitizationService
     WITH Ranked AS
     (
         SELECT Id,
-           ROW_NUMBER() OVER (PARTITION BY PolicyNumber, Amount, TransactionDate ORDER BY Id) AS rn
+           ROW_NUMBER() OVER (PARTITION BY PolicyNumber, NetCommission, TransactionDate ORDER BY Id) AS rn
         FROM InsuranceTransactions
         WHERE BatchId = {batchId}
     )
@@ -60,7 +60,7 @@ public class SanitizationService : ISanitizationService
 
         foreach (var transaction in candidates)
         {
-            if (transaction.GrossPremium.HasValue && transaction.Amount > transaction.GrossPremium.Value)
+            if (transaction.GrossPremium.HasValue && transaction.NetCommission > transaction.GrossPremium.Value)
             {
                 transaction.Status = TransactionStatus.Suspect;
                 _dbContext.SanitizationLogs.Add(new SanitizationLog
