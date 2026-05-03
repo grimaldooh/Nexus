@@ -17,8 +17,15 @@ public class BatchesController : ControllerBase
         _dbContext = dbContext;
     }
 
+    /// <summary>
+    /// Gets batch processing status and summary counts.
+    /// </summary>
+    /// <response code="200">Batch status returned.</response>
+    /// <response code="401">Missing or invalid API key.</response>
+    /// <response code="404">Batch not found.</response>
     [HttpGet("{id:guid}")]
     [ProducesResponseType(typeof(BatchStatusDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetStatus(Guid id, CancellationToken cancellationToken)
     {

@@ -33,9 +33,10 @@ packages/
 *.sln.iml
 
 # ASP.NET
+appsettings.json
 appsettings.Development.json
 appsettings.*.json
-!appsettings.json
+!appsettings.example.json
 
 # Environment files
 .env

@@ -17,8 +17,14 @@ public class AuditController : ControllerBase
         _dbContext = dbContext;
     }
 
+    /// <summary>
+    /// Returns transactions flagged for manual review.
+    /// </summary>
+    /// <response code="200">Suspect transactions returned.</response>
+    /// <response code="401">Missing or invalid API key.</response>
     [HttpGet("suspects")]
     [ProducesResponseType(typeof(IEnumerable<AuditSuspectDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetSuspects(CancellationToken cancellationToken)
     {
         var suspects = await _dbContext.InsuranceTransactions
@@ -42,8 +48,17 @@ public class AuditController : ControllerBase
         return Ok(suspects);
     }
 
+    /// <summary>
+    /// Resolves a suspect transaction as approved or invalid.
+    /// </summary>
+    /// <response code="200">Resolution accepted.</response>
+    /// <response code="400">Invalid request payload.</response>
+    /// <response code="401">Missing or invalid API key.</response>
+    /// <response code="404">Transaction not found.</response>
     [HttpPost("resolve")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Resolve([FromBody] ResolveAuditRequest request, CancellationToken cancellationToken)
     {
