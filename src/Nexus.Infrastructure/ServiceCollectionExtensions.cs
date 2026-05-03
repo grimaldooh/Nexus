@@ -2,7 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Nexus.Application.Interfaces;
+using Nexus.Domain.Interfaces;
 using Nexus.Infrastructure.Data;
+using Nexus.Infrastructure.Ingestion;
 using Nexus.Infrastructure.Options;
 using Nexus.Infrastructure.Services;
 
@@ -20,6 +22,13 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient<ISemanticDuplicateAnalyzer, OpenAiSemanticDuplicateAnalyzer>();
         services.AddScoped<ISanitizationService, SanitizationService>();
         services.AddScoped<ICommissionCalculator, CommissionCalculator>();
+        services.AddScoped<ICarrierMappingService, CarrierMappingService>();
+        services.AddScoped<IAIIntegrityService, AiIntegrityService>();
+        services.AddScoped<IPiiMaskingService, PiiMaskingService>();
+        services.AddScoped<IIngestionPipeline, IngestionPipeline>();
+
+        services.AddTransient<IIngestionStrategy, CsvIngestionStrategy>();
+        services.AddTransient<IIngestionStrategy, ExcelIngestionStrategy>();
 
         return services;
     }

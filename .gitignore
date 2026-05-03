@@ -1,0 +1,49 @@
+# Build outputs
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+
+# Logs
+*.log
+
+# Coverage
+*.coverage
+*.coveragexml
+TestResults/
+
+# NuGet
+*.nupkg
+packages/
+
+# JetBrains
+.idea/
+
+# Rider
+*.sln.iml
+
+# ASP.NET
+appsettings.Development.json
+appsettings.*.json
+!appsettings.json
+
+# Environment files
+.env
+.env.*
+
+# Secrets
+secrets.json
+
+# Local DB
+*.mdf
+*.ldf

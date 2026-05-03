@@ -41,13 +41,14 @@ public class IngestionController : ControllerBase
         var uploadDirectory = Path.Combine(_environment.ContentRootPath, "App_Data", "ingestion");
         Directory.CreateDirectory(uploadDirectory);
 
-        var filePath = Path.Combine(uploadDirectory, $"{batch.Id}.csv");
+        var fileExtension = Path.GetExtension(request.File.FileName);
+        var filePath = Path.Combine(uploadDirectory, $"{batch.Id}{fileExtension}");
         await using (var fileStream = System.IO.File.Create(filePath))
         {
             await request.File.CopyToAsync(fileStream, cancellationToken);
         }
 
-        await _queue.QueueAsync(new IngestionJob(batch.Id, filePath, batch.SourceName), cancellationToken);
+            await _queue.QueueAsync(new IngestionJob(batch.Id, filePath, batch.SourceName, request.CarrierCode), cancellationToken);
 
         return Ok(new UploadResultDto { BatchId = batch.Id });
     }

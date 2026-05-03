@@ -10,7 +10,12 @@ public class UploadCsvRequestValidator : AbstractValidator<UploadCsvRequest>
         RuleFor(x => x.File).NotNull();
         RuleFor(x => x.File.FileName)
             .NotEmpty()
-            .Must(name => name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
-            .WithMessage("Only .csv files are supported.");
+            .Must(name => name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase) ||
+                          name.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase) ||
+                          name.EndsWith(".xls", StringComparison.OrdinalIgnoreCase))
+            .WithMessage("Only .csv, .xlsx, or .xls files are supported.");
+        RuleFor(x => x.CarrierCode)
+            .NotEmpty()
+            .MaximumLength(50);
     }
 }
