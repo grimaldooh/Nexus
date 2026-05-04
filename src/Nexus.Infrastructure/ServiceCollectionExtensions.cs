@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISanitizationService, SanitizationService>();
         services.AddScoped<ICommissionCalculator, CommissionCalculator>();
         services.AddScoped<ICarrierMappingService, CarrierMappingService>();
-        services.AddScoped<IAIIntegrityService, AiIntegrityService>();
+        services.AddHttpClient<IAIIntegrityService, AiIntegrityService>();
         services.AddScoped<IPiiMaskingService, PiiMaskingService>();
         services.AddScoped<IIngestionPipeline, IngestionPipeline>();
 

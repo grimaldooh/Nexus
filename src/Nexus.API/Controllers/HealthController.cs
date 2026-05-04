@@ -75,23 +75,23 @@ public class HealthController : ControllerBase
 
 public class DatabaseHealthResponse
 {
-    public string Status { get; set; }
-    public string Message { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public string Message { get; set; } = string.Empty;
     public DateTime Timestamp { get; set; }
-    public object DatabaseMetrics { get; set; }
+    public object? DatabaseMetrics { get; set; }
 }
 
 public class ErrorResponse
 {
-    public string Status { get; set; }
-    public string Message { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public string Message { get; set; } = string.Empty;
     public DateTime Timestamp { get; set; }
-    public string ErrorDetails { get; set; }
+    public string ErrorDetails { get; set; } = string.Empty;
 }
 
 public class PingResponse
 {
-    public string Status { get; set; }
+    public string Status { get; set; } = string.Empty;
     public DateTime Timestamp { get; set; }
-    public string Message { get; set; }
+    public string Message { get; set; } = string.Empty;
 }
