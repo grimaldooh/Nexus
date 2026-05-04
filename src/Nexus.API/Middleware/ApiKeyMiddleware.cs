@@ -14,7 +14,7 @@ public class ApiKeyMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        if (IsSwaggerRequest(context.Request.Path))
+        if (IsExcludedPath(context.Request.Path))
         {
             await _next(context);
             return;
@@ -39,8 +39,10 @@ public class ApiKeyMiddleware
         await _next(context);
     }
 
-    private static bool IsSwaggerRequest(PathString path)
+    private static bool IsExcludedPath(PathString path)
     {
-        return path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase);
+        // Exclude swagger and health endpoints from API key validation
+        return path.StartsWithSegments("/swagger", StringComparison.OrdinalIgnoreCase) ||
+               path.StartsWithSegments("/api/health", StringComparison.OrdinalIgnoreCase);
     }
 }

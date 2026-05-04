@@ -1,0 +1,24 @@
+services:
+  nexus-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nexus-api
+    ports:
+      - "8080:5000"
+      - "8443:5001"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__NexusDb=${DATABASE_CONNECTION_STRING}
+      - Security__ApiKey=${API_KEY}
+      - OpenAi__ApiKey=${OPENAI_API_KEY}
+      - OpenAi__Model=gpt-4o-mini
+      - OpenAi__SuspectThreshold=0.7
+    restart: unless-stopped
+    networks:
+      - nexus-network
+
+networks:
+  nexus-network:
+    driver: bridge

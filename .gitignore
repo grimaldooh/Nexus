@@ -37,10 +37,8 @@ appsettings.json
 appsettings.Development.json
 appsettings.*.json
 !appsettings.example.json
-
-# Environment files
+docker-compose.yml
 .env
-.env.*
 
 # Secrets
 secrets.json
@@ -48,5 +46,6 @@ secrets.json
 # Local DB
 *.mdf
 *.ldf
+src/Nexus.API/appsettings.json
 src/Nexus.API/appsettings.json
 src/Nexus.API/appsettings.json
