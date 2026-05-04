@@ -44,6 +44,7 @@ public class NexusDbContext : DbContext
             entity.Property(x => x.CarrierCode).HasMaxLength(50).IsRequired();
             entity.Property(x => x.GrossPremium).HasColumnType("decimal(18,2)");
             entity.Property(x => x.NetCommission).HasColumnType("decimal(18,2)");
+            entity.Property(x => x.ConfidenceScore).HasColumnType("decimal(5,4)");
             entity.Property(x => x.Notes).HasMaxLength(2000);
             entity.Property(x => x.PIIMasked).HasDefaultValue(false);
             entity.HasIndex(x => new { x.BatchId, x.ExternalId }).IsUnique(false);

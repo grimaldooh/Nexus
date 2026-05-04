@@ -1,0 +1,26 @@
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+WORKDIR /app
+
+# 1. Copiar la solución y todos los .csproj manteniendo la estructura de carpetas
+# Esto es necesario porque los proyectos se referencian entre sí
+COPY ["src/Nexus.API/Nexus.API.csproj", "src/Nexus.API/"]
+COPY ["src/Nexus.Domain/Nexus.Domain.csproj", "src/Nexus.Domain/"]
+COPY ["src/Nexus.Infrastructure/Nexus.Infrastructure.csproj", "src/Nexus.Infrastructure/"]
+COPY ["src/Nexus.Application/Nexus.Application.csproj", "src/Nexus.Application/"]
+
+# 2. Restaurar dependencias del proyecto principal
+RUN dotnet restore "src/Nexus.API/Nexus.API.csproj"
+
+# 3. Copiar todo el resto del código fuente
+COPY . .
+
+# 4. Instalar EF Core Tools
+RUN dotnet tool install --global dotnet-ef --version 9.0.0
+ENV PATH="$PATH:/root/.dotnet/tools"
+
+# 5. Punto de entrada ajustado a las rutas de src/
+# El comando asume que el DbContext está en Infrastructure y el Startup en API
+ENTRYPOINT ["dotnet", "ef", "database", "update", \
+            "--project", "src/Nexus.Infrastructure/Nexus.Infrastructure.csproj", \
+            "--startup-project", "src/Nexus.API/Nexus.API.csproj", \
+            "--verbose"]

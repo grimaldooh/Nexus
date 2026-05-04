@@ -48,3 +48,5 @@ secrets.json
 # Local DB
 *.mdf
 *.ldf
+src/Nexus.API/appsettings.json
+src/Nexus.API/appsettings.json
