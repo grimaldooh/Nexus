@@ -14,6 +14,7 @@ public class NexusDbContext : DbContext
     public DbSet<InsuranceTransaction> InsuranceTransactions => Set<InsuranceTransaction>();
     public DbSet<SanitizationLog> SanitizationLogs => Set<SanitizationLog>();
     public DbSet<CarrierMapping> CarrierMappings => Set<CarrierMapping>();
+    public DbSet<CanonicalField> CanonicalFields => Set<CanonicalField>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -68,6 +69,20 @@ public class NexusDbContext : DbContext
             entity.Property(x => x.TransformRule).HasMaxLength(500);
             entity.Property(x => x.IsRequired).HasDefaultValue(false);
             entity.HasIndex(x => new { x.CarrierCode, x.SourceField }).IsUnique();
+        });
+
+        modelBuilder.Entity<CanonicalField>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.FieldName).HasMaxLength(100).IsRequired();
+            entity.Property(x => x.Description).HasMaxLength(500).IsRequired();
+            entity.Property(x => x.DataType).HasMaxLength(50).IsRequired();
+            entity.Property(x => x.Examples).HasMaxLength(2000);
+            entity.Property(x => x.IsActive).HasDefaultValue(true);
+            entity.Property(x => x.SortOrder).HasDefaultValue(0);
+            entity.HasIndex(x => x.FieldName).IsUnique();
+            entity.HasIndex(x => x.IsActive);
+            entity.HasIndex(x => x.SortOrder);
         });
     }
 }

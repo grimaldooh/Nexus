@@ -1,6 +1,7 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nexus.Application.DTOs;
@@ -45,17 +46,32 @@ public class AiIntegrityService : IAIIntegrityService
         _logger.LogInformation("Calling OpenAI to map {Count} headers for carrier {CarrierCode}: {Headers}", 
             sourceHeaders.Count, record.CarrierCode, string.Join(", ", sourceHeaders));
 
+        var canonicalFields = await _dbContext.CanonicalFields
+            .AsNoTracking()
+            .Where(x => x.IsActive)
+            .OrderBy(x => x.SortOrder)
+            .ToListAsync(cancellationToken);
+
+        var canonicalList = canonicalFields.Count > 0
+            ? string.Join("\n", canonicalFields.Select(field =>
+                $"- {field.FieldName} : {field.Description}" +
+                (string.IsNullOrWhiteSpace(field.Examples) ? string.Empty : $" (examples: {field.Examples})")))
+            : string.Join("\n", new[]
+            {
+                "- ExternalId : A unique identifier for the transaction",
+                "- PolicyNumber : The insurance policy number",
+                "- GrossPremium: The gross premium amount",
+                "- NetCommission: The net commission amount",
+                "- TransactionDate: The exact date of the transaction",
+                "- Notes: Any additional notes or status text"
+            });
+
         var prompt = $$"""
 You are an expert data integration assistant for an insurance agency.
 Your task is to map an unknown CSV/Excel file's headers to our internal canonical database fields.
 
 Our internal canonical fields are:
-- ExternalId : A unique identifier for the transaction
-- PolicyNumber : The insurance policy number
-- GrossPremium: The gross premium amount
-- NetCommission: The net commission amount
-- TransactionDate: The exact date of the transaction
-- Notes: Any additional notes or status text
+{{canonicalList}}
 
 The incoming file from carrier '{{record.CarrierCode}}' has these exact headers:
 [{{string.Join(", ", sourceHeaders.Select(h => $"\"{h}\""))}}]
