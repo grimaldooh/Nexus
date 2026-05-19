@@ -1,49 +1,37 @@
 # Nexus - Insurance Commission Processing Platform
 
-Backend service for insurance commission ingestion, sanitization, and audit workflows.
+Backend service for ingestion, validation, and audit of insurance commission transactions.
 
-## 🎯 What Problem Does Nexus Solve?
+## Overview
 
-**Business Problem:** Insurance companies receive thousands of commission transactions from various carriers. These transactions often contain:
-- Duplicate entries (same policy, same date)
-- Suspicious amounts (potentially fraudulent or data errors)
-- Personally Identifiable Information (PII) that needs masking
-- Data quality issues requiring manual review
+Nexus processes commission data from multiple carriers, detects duplicates and anomalies, and provides audit trails for compliance. The system groups transactions by carrier, policy number, premium amount, and commission on a per-day basis. Flagged transactions require manual review before approval.
 
-**Nexus Solution:** Automatically process, validate, and sanitize insurance commission data with AI-powered fraud detection.
-
-## 📊 System Architecture
+## System Flow
 
 ```
-Upload CSV/Excel File
-        ↓
-    [Batch Created & Queued]
-        ↓
-   [Background Processing]
-   - Extract transactions
-   - Validate data format
-   - Check for duplicates
-   - Detect suspicious amounts (AI)
-   - Mask PII
-   - Log sanitization
-        ↓
-   [3 Possible Outcomes]
-   - ✅ CLEAN: Trusted transaction
-   - ⚠️ SUSPECT: Needs manual review
-   - ❌ INVALID: Duplicate or error
-        ↓
-   [Manual Audit Review]
-   - Approve suspicious
-   - Reject fraudulent
-   - Track decisions
-        ↓
-    [Data Ready for Billing/BI]
+1. Upload CSV file
+   └─> Batch created
+
+2. Background processing
+   ├─> Extract and map fields
+   ├─> Detect exact duplicates
+   ├─> Identify suspicious amounts
+   └─> Mark PII for masking
+
+3. Results
+   ├─> CLEAN: approved for billing
+   ├─> SUSPECT: requires audit review
+   └─> INVALID: rejected
+
+4. Manual audit (if needed)
+   └─> Approve or reject flagged items
 ```
 
 ## Requirements
-- .NET 9 SDK
-- SQL Server / Azure SQL Database
-- OpenAI API Key (for fraud detection)
+
+- .NET 9.0 SDK
+- SQL Server or Azure SQL Database
+- OpenAI API Key (optional, for semantic analysis)
 
 ## Configuration
 
@@ -80,382 +68,131 @@ Swagger UI will be available at `/swagger`.
 
 ---
 
-## 🔌 API Endpoints Guide
+## API Reference
 
-### Base URL
-- **Local:** `http://localhost:5000`
-- **Docker:** `http://localhost:8080`
+Base URLs: `http://localhost:5000` (local) or `http://localhost:8080` (docker)
 
-### Authentication
-All endpoints (except `/health`) require the API Key header:
-```
-X-Api-Key: dev-test-key-12345
-```
+All endpoints except `/health` require header: `X-Api-Key: dev-test-key-12345`
 
----
+### Upload Batch
 
-## 📤 1. Upload File (Ingestion)
-
-**Purpose:** Submit a batch of insurance transactions for processing
-
-**Endpoint:** 
 ```
 POST /api/ingestion/upload
+Content-Type: multipart/form-data
+
+Form fields:
+- File (required): CSV or Excel file
+- SourceName (optional): Carrier name
+- CarrierCode (optional): Carrier code
 ```
 
-**Headers:**
-```
-X-Api-Key: dev-test-key-12345
-```
-
-**Body Type:** `form-data` (NOT JSON)
-
-**Form Fields:**
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `File` | File | ✅ Yes | CSV or Excel file |
-| `SourceName` | Text | ❌ No | Name of the carrier (e.g., "State Farm", "Geico") |
-| `CarrierCode` | Text | ❌ No | Carrier code for tracking |
-
-**Thunder Client Example:**
-```
-1. Method: POST
-2. URL: http://localhost:8080/api/ingestion/upload
-3. Headers tab:
-   - X-Api-Key: dev-test-key-12345
-4. Body tab → Select "form-data"
-5. Add fields:
-   - Key: "File", Type: file, Value: [select your CSV]
-   - Key: "SourceName", Type: text, Value: "State Farm"
-   - Key: "CarrierCode", Type: text, Value: "SF-001"
-6. Click "Send"
-```
-
-**Success Response (200 OK):**
+Response:
 ```json
 {
   "batchId": "550e8400-e29b-41d4-a716-446655440000"
 }
 ```
 
-**Save this Batch ID** - you'll use it to check status!
+### Check Batch Status
 
----
-
-## 📊 2. Check Batch Status
-
-**Purpose:** Track the processing progress of your batch
-
-**Endpoint:**
 ```
 GET /api/batches/{batchId}
 ```
 
-**Headers:**
-```
-X-Api-Key: dev-test-key-12345
-```
-
-**Thunder Client Example:**
-```
-1. Method: GET
-2. URL: http://localhost:8080/api/batches/550e8400-e29b-41d4-a716-446655440000
-3. Headers tab:
-   - X-Api-Key: dev-test-key-12345
-4. Click "Send"
-```
-
-**Response (200 OK):**
+Response:
 ```json
 {
   "batchId": "550e8400-e29b-41d4-a716-446655440000",
-  "status": "Processing",
-  "totalRecords": 150,
-  "cleanCount": 120,
-  "duplicateCount": 15,
-  "suspectCount": 15
+  "status": "Completed",
+  "totalRecords": 100,
+  "cleanCount": 85,
+  "duplicateCount": 10,
+  "suspectCount": 5
 }
 ```
 
-**Status Values:**
-- `Pending` - Waiting to process
-- `Processing` - Currently analyzing
-- `Completed` - Done (check results)
-- `Failed` - Error occurred
+Status values: Pending, Processing, Completed, Failed
 
-**Result Breakdown:**
-- `cleanCount` ✅ - Approved transactions (ready for billing)
-- `duplicateCount` ❌ - Duplicate entries (discarded)
-- `suspectCount` ⚠️ - Needs manual review
+### List Suspect Transactions
 
----
-
-## 🚨 3. Get Suspicious Transactions (Audit)
-
-**Purpose:** Retrieve all transactions flagged for manual review
-
-**Endpoint:**
 ```
 GET /api/audit/suspects
 ```
 
-**Headers:**
-```
-X-Api-Key: dev-test-key-12345
-```
+Response: Array of flagged transactions requiring review.
 
-**Thunder Client Example:**
-```
-1. Method: GET
-2. URL: http://localhost:8080/api/audit/suspects
-3. Headers tab:
-   - X-Api-Key: dev-test-key-12345
-4. Click "Send"
-```
+### Resolve Suspect Transaction
 
-**Response (200 OK):**
-```json
-[
-  {
-    "transactionId": "a1b2c3d4-e5f6-47g8-h9i0-j1k2l3m4n5o6",
-    "policyNumber": "POL-2024-001",
-    "netCommission": 15000.50,
-    "transactionDate": "2024-05-01T10:30:00Z",
-    "confidenceScore": 0.8742,
-    "reason": "Amount exceeds threshold for policy type",
-    "notes": "Possible data entry error or high-value transaction"
-  },
-  {
-    "transactionId": "b2c3d4e5-f6g7-48h9-i0j1-k2l3m4n5o6p7",
-    "policyNumber": "POL-2024-002",
-    "netCommission": 8500.00,
-    "transactionDate": "2024-05-01T14:15:00Z",
-    "confidenceScore": 0.6234,
-    "reason": "Similar transaction exists within 24 hours",
-    "notes": "Potential duplicate from different system"
-  }
-]
-```
-
-**Understanding the Data:**
-- `confidenceScore` (0.0 - 1.0) - Likelihood of issue (0.5+ = suspicious)
-- `reason` - Why it was flagged
-- You'll manually review each one and approve/reject
-
----
-
-## ✅/❌ 4. Manually Resolve a Suspect Transaction
-
-**Purpose:** Auditor reviews a suspicious transaction and approves or rejects it
-
-**Endpoint:**
 ```
 POST /api/audit/resolve
-```
-
-**Headers:**
-```
-X-Api-Key: dev-test-key-12345
 Content-Type: application/json
-```
 
-**Body (JSON):**
-```json
 {
   "transactionId": "a1b2c3d4-e5f6-47g8-h9i0-j1k2l3m4n5o6",
   "approve": true,
-  "reason": "Verified with carrier - legitimate high-value commission"
+  "reason": "Verified with carrier"
 }
 ```
 
-**Thunder Client Example:**
-```
-1. Method: POST
-2. URL: http://localhost:8080/api/audit/resolve
-3. Headers tab:
-   - X-Api-Key: dev-test-key-12345
-   - Content-Type: application/json
-4. Body tab → Select "JSON"
-5. Paste the JSON above
-6. Click "Send"
-```
+### Health Check
 
-**Possible Values:**
-- `approve: true` → Transaction marked as `Clean` (use for billing)
-- `approve: false` → Transaction marked as `Invalid` (discard)
-
-**Response (200 OK):**
-```json
-{}
-```
-(Empty response means success)
-
----
-
-## 🏥 5. Health Check (Monitoring)
-
-**Purpose:** Verify API and database connectivity
-
-**Endpoint:**
 ```
 GET /api/health/database
 ```
 
-**No authentication required** ✅
+No authentication required.
 
-**Thunder Client Example:**
-```
-1. Method: GET
-2. URL: http://localhost:8080/api/health/database
-3. Headers: (none needed)
-4. Click "Send"
-```
+## Data Model
 
-**Response (200 OK - Database Healthy):**
-```json
-{
-  "status": "Healthy",
-  "message": "Database connection successful",
-  "timestamp": "2026-05-04T02:30:00Z",
-  "databaseMetrics": {
-    "totalBatches": 5,
-    "totalTransactions": 1250
-  }
-}
-```
+### Batch
+- Id: GUID (primary key)
+- SourceName: string (carrier name)
+- UploadDate: DateTime
+- Status: enum (Pending, Processing, Completed, Failed)
+- Transactions: relationship to InsuranceTransaction[]
 
-**Response (500 OK - Database Unhealthy):**
-```json
-{
-  "status": "Unhealthy",
-  "message": "Database connection failed: ...",
-  "timestamp": "2026-05-04T02:30:00Z",
-  "errorDetails": "SqlException"
-}
-```
+### InsuranceTransaction
+- Id: GUID (primary key)
+- BatchId: GUID (foreign key)
+- CarrierCode: string
+- PolicyNumber: string
+- ExternalId: string
+- GrossPremium: decimal (nullable)
+- NetCommission: decimal
+- TransactionDate: DateTime
+- Status: enum (Clean, Suspect, Duplicate, Invalid, Pending)
+- ConfidenceScore: decimal (0.0-1.0, nullable)
+- PIIMasked: bool
+- Notes: string (nullable)
+- SanitizationLogs: relationship to SanitizationLog[]
 
----
+### SanitizationLog
+- Id: GUID (primary key)
+- TransactionId: GUID (foreign key)
+- DecisionType: enum (Auto, Manual, Ai)
+- Reason: string
+- CreatedAt: DateTime
 
-## 🔄 Complete Workflow Example
+## Duplicate Detection Logic
 
-### Step 1: Upload a CSV file
-```
-POST /api/ingestion/upload
-(form-data with your CSV file)
-↓
-Response: { "batchId": "550e8400-e29b-41d4-a716-446655440000" }
-```
+Transactions are grouped by:
+- CarrierCode
+- PolicyNumber
+- GrossPremium
+- NetCommission
+- TransactionDate (date only, ignoring time)
 
-### Step 2: Check processing status (poll every 5-10 seconds)
-```
-GET /api/batches/550e8400-e29b-41d4-a716-446655440000
-↓
-Response shows: cleanCount: 120, suspectCount: 15
-(Wait until status = "Completed")
-```
+Within each group, the first occurrence is marked as Clean. Subsequent occurrences are marked as Duplicate.
 
-### Step 3: Review suspicious transactions
+## CSV Format
+
+Expected input columns (examples):
 ```
-GET /api/audit/suspects
-↓
-Response: Array of 15 suspicious transactions
+carrier_code,policy_number,gross_premium,commission,transaction_date
+SF-001,POL-2024-001,5000.00,500.00,2024-05-01
+SF-001,POL-2024-002,7500.00,750.00,2024-05-02
 ```
 
-### Step 4: Approve or reject each suspicious transaction
-```
-POST /api/audit/resolve
-{
-  "transactionId": "a1b2c3d4...",
-  "approve": true,
-  "reason": "Verified with carrier"
-}
-↓
-(Repeat for each flagged transaction)
-```
-
-### Step 5: Export clean data
-```
-Query the database directly or use BI tools to:
-- Fetch all transactions where Status = "Clean"
-- Ready for billing system
-```
-
----
-
-## 🗂️ Data Model
-
-### Batch Entity
-```
-Batch
-├── Id (GUID)
-├── SourceName (string) - Carrier name
-├── UploadDate (DateTime)
-├── Status (BatchStatus enum)
-│   ├── Pending
-│   ├── Processing
-│   ├── Completed
-│   └── Failed
-└── Transactions (1-to-many)
-```
-
-### InsuranceTransaction Entity
-```
-InsuranceTransaction
-├── Id (GUID)
-├── BatchId (GUID) - References Batch
-├── PolicyNumber (string)
-├── NetCommission (decimal)
-├── TransactionDate (DateTime)
-├── ConfidenceScore (decimal 0-1)
-├── Status (TransactionStatus enum)
-│   ├── Clean ✅
-│   ├── Suspect ⚠️
-│   ├── Duplicate ❌
-│   └── Invalid ❌
-└── SanitizationLogs (1-to-many)
-```
-
-### SanitizationLog Entity
-```
-SanitizationLog
-├── Id (GUID)
-├── TransactionId (GUID)
-├── Reason (string) - Why was it flagged?
-├── DecisionType (SanitizationDecisionType)
-│   ├── Automatic
-│   └── Manual
-├── CreatedAt (DateTime)
-└── PiiMasked (bool) - Was sensitive data masked?
-```
-
----
-
-## 🔍 Example CSV Format
-
-Your input CSV should look like:
-```csv
-PolicyNumber,CommissionAmount,TransactionDate,CarrierCode,AgentCode
-POL-2024-001,15000.50,2024-05-01,SF-001,AGENT-123
-POL-2024-002,8500.00,2024-05-01,SF-001,AGENT-456
-POL-2024-003,12000.75,2024-05-02,AH-002,AGENT-123
-```
-
-The system will:
-1. ✅ Validate format
-2. ✅ Check for duplicates
-3. ✅ Mask sensitive fields
-4. 🤖 Use AI to detect suspicious amounts
-5. 📊 Generate audit report
-
----
-
-## 🚀 Next Steps for Testing
-
-1. **Prepare a test CSV** with 10-20 transaction records
-2. **Upload it** via POST `/api/ingestion/upload`
-3. **Monitor** with GET `/api/batches/{batchId}`
-4. **Review suspects** with GET `/api/audit/suspects`
-5. **Resolve each** with POST `/api/audit/resolve`
-6. **Verify database** with GET `/api/health/database`
+The system maps unknown headers to canonical fields using AI when mappings do not exist.
 
 ---
